@@ -9,9 +9,11 @@ def included_package(p):
 
 setup(
 	name='SpanishAcquisition',
-	version='1.0.3',
+	version='1.1.0',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
+	maintainer='Grant Watson',
+	maintainer_email='ghwatson@uwaterloo.ca',
 	description='Package for interfacing with devices and building user '
 			'interfaces.',
 	license='BSD',
