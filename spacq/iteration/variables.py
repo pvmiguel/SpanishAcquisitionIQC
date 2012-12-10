@@ -75,7 +75,7 @@ class OutputVariable(Variable):
 	# Maximum number of values to search through for the end.
 	search_values = 1000
 
-	def __init__(self, order, config=None, wait='0 s', const=0.0, use_const=False, *args, **kwargs):
+	def __init__(self, order, config=None, wait='100 ms', const=0.0, use_const=False, *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
 
 		self.order = order
