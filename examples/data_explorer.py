@@ -5,12 +5,18 @@ logging.basicConfig(level=logging.WARNING)
 
 from functools import partial
 import wx
+import sys
+
+from numpy import concatenate
 
 from spacq import VERSION
 from spacq.gui.display.plot.static.delegator import formats, available_formats
 from spacq.gui.display.table.filter import FilterListDialog
 from spacq.gui.display.table.generic import TabularDisplayFrame
+from spacq.gui.display.plot.plotmath.derivative import DerivativeMathSetupDialog
 from spacq.gui.tool.box import load_csv, MessageDialog
+
+
 
 
 class DataExplorerApp(wx.App):
@@ -77,6 +83,13 @@ class DataExplorerApp(wx.App):
 		self.waveforms_menu = menu.Append(wx.ID_ANY, '&Waveforms...')
 		self.Bind(wx.EVT_MENU, partial(self.create_plot, formats.waveforms, type='list'),
 				self.waveforms_menu)
+
+		## Math.
+		menu = wx.Menu()
+		menuBar.Append(menu, '&Math')
+
+		item = menu.Append(wx.ID_ANY, '&Derivative...')
+		self.Bind(wx.EVT_MENU, self.OnMenuMathDerivative, item)
 
 		## Help.
 		menu = wx.Menu()
@@ -174,6 +187,19 @@ class DataExplorerApp(wx.App):
 	def OnMenuFileExit(self, evt=None):
 		if self.csv_frame:
 			self.csv_frame.Close()
+
+	def OnMenuMathDerivative(self, format, evt=None, type='scalar'):
+		"""
+		Open up a dialog to calculate derivative
+		"""
+		headings, rows, types = self.csv_frame.display_panel.GetValue(types=[type])
+		dmath = DerivativeMathSetupDialog(self.csv_frame, headings, rows)
+		dmath_open = dmath.ShowModal()
+				
+		new_headings = concatenate([headings,[dmath.dheading]],1)
+		new_rows = concatenate([rows.astype(float),dmath.ddata],1)
+
+		self.csv_frame.display_panel.SetValue(new_headings,new_rows)
 
 	def OnMenuHelpAbout(self, evt=None):
 		info = wx.AboutDialogInfo()
