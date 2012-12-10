@@ -2,6 +2,17 @@
 Changes
 #######
 
+* 2012-07-30: **1.1.0**
+
+  Enhancements:
+  
+  * Added devices for older (6 channel) voltage source and Keithley voltage source.
+  * Added derivative functionality to data_explorer app
+  
+  Fixes:
+  
+  * Fixed a mismatch between data_explorer and installed python scripts
+
 * 2011-10-18: **1.0.3**
 
   Fixes:
