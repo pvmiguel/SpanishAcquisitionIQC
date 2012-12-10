@@ -13,7 +13,12 @@ config['devices']['DM34410A'] = {
 	'model': '34410A',
 }
 config['devices']['VoltageSource'] = {
-	'address': {'usb_resource': 'USB::0x1234::0x5678::01234567::RAW'},
+	'address': {'usb_resource': 'USB0::0x3923::0x7166::01234567::RAW'},  #This is the wrong address
 	'manufacturer': 'IQC',
 	'model': 'Voltage source',
+}
+config['devices']['ch6VoltageSource'] = {
+	'address': {'usb_resource': 'USB0::0x3923::0x7166::01300DB9::RAW'},
+	'manufacturer': 'IQC',
+	'model': 'ch6 Voltage source',
 }
