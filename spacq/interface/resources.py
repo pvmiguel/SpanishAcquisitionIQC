@@ -156,7 +156,7 @@ class Resource(object):
 			self.verify_dimensions(v)
 
 		if self.allowed_values is not None and v not in self.allowed_values:
-			raise ValueError('Disallowed value: {0}'.format(v))
+			raise ValueError('Given disallowed value: {0}. Allowed values are: {1}'.format(v,self.allowed_values))
 
 		if callable(self.setter):
 			self.setter(v)

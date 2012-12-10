@@ -463,7 +463,7 @@ class DataCapturePanel(wx.Panel):
 				MessageDialog(self, ', '.join('"{0}"'.format(x) for x in sorted(items)), msg).Show()
 
 		if mismatched_resources:
-			MessageDialog(self, ', '.join('{0}/{1}'.format(x[0], x[1]) for x in mismatched_resources),
+			MessageDialog(self, ', '.join('Mismatched resource type for resource name {0} with variable name {1}'.format(x[0], x[1]) for x in mismatched_resources),
 					'Mismatched resources').Show()
 
 		if (missing_resources or unreadable_resources or unwritable_resources or
