@@ -2,6 +2,12 @@
 Changes
 #######
 
+* 2012-08-15: **1.2.0**
+
+  Enhancements:
+  
+  * Added agilent dm34401a multimeter device.
+
 * 2012-07-30: **1.1.0**
 
   Enhancements:
