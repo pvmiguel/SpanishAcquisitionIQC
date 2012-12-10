@@ -6,7 +6,7 @@ Changes
 
   Enhancements:
   
-  * Added devices for older (6 channel) voltage source and Keithley voltage source.
+  * Added implementation for older (6 channel) voltage source
   * Added derivative functionality to data_explorer app
   
   Fixes:
