@@ -66,7 +66,7 @@ class VirtualListCtrl(wx.ListCtrl, ListCtrlAutoWidthMixin):
 
 			for i, _ in enumerate(self.headings):
 				# Truncate for display.
-				self.display_data[:,i] = [x[:self.max_value_len] for x in data[:,i]]
+				self.display_data[:,i] = [str(x)[:self.max_value_len] for x in data[:,i]]
 
 		self.Refresh()
 
