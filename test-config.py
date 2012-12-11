@@ -23,7 +23,12 @@ config['devices']['ch6VoltageSource'] = {
 	'model': 'ch6 Voltage source',
 }
 config['devices']['TC335'] = {
-    'address': {'gpib_board': 0, 'gpib_pad': 1}, #This address is wrong.
-    'manufacturer': 'Lakeshore',
-    'model': '335 Temperature Controller',
+	'address': {'gpib_board': 0, 'gpib_pad': 1}, #This address is wrong.
+	'manufacturer': 'Lakeshore',
+	'model': '335 Temperature Controller',
+}
+config['devices']['Model4G'] = {
+	'address': {'gpib_board': 0, 'gpib_pad': 23},
+	'manufacturer': 'Cryomagnetics',
+	'model': 'Model 4G',
 }

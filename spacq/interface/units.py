@@ -52,7 +52,7 @@ class SIValues(object):
 	# SI base units. Note the g instead of kg.
 	units = set(['A', 'cd', 'g', 'K', 'm', 'mol', 's'])
 	# SI derived units. Add more as necessary.
-	units.update(['Hz', 'J', 'N', 'T', 'V'])
+	units.update(['Hz', 'J', 'N', 'T', 'V', 'G'])
 
 
 class Quantity(object):
@@ -156,6 +156,7 @@ class Quantity(object):
 		self.original_multiplier = multiplier
 
 		# Find the normalization factor.
+		#FIXME: This approach does not work for the case where a quantity has a value of 0...
 		q, orig = self._q.magnitude, original_quantity.magnitude
 		if q != orig:
 			self.original_multiplier += log10(abs(q)) - log10(abs(orig))
@@ -167,6 +168,14 @@ class Quantity(object):
 		"""
 
 		return set(self._q.dimensionality.items())
+	
+	@property
+	def dimensions_string(self):
+		"""
+		Returns the simplified units and their exponents in string form.
+		"""
+		
+		return self._q.dimensionality
 
 	@property
 	def value(self):
