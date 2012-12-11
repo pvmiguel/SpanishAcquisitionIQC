@@ -60,7 +60,7 @@ class AcquisitionApp(wx.App):
 		self.global_store = GlobalStore()
 
 		# Frames.
-		self.acq_frame = SweepingAcquisitionFrame(None, self.global_store, title='Acquisition')
+		self.acq_frame = SweepingAcquisitionFrame(None, self.global_store, title='Acquisition (v{0})'.format(VERSION))
 		self.device_config_frame = None
 		self.pulse_program_frame = None
 
