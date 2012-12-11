@@ -2,6 +2,12 @@
 Changes
 #######
 
+* 2012-09-19: **1.3.0**
+
+  Enhancements:
+  
+  * Added Lakeshore TC335 device.
+
 * 2012-08-15: **1.2.0**
 
   Enhancements:
