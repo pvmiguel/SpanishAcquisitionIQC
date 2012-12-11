@@ -80,8 +80,10 @@ class Resource(object):
 	def units(self, value):
 		self._units = value
 
-		if self.display_units is None:
-			self.display_units = self.units
+#		if self.display_units is None:
+#			self.display_units = self.units
+		
+		self.display_units = self.units
 
 	def verify_dimensions(self, value, exception=True, from_string=False):
 		"""
