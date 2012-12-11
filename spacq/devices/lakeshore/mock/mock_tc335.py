@@ -15,11 +15,11 @@ class MockTC335(MockAbstractDevice, TC335):
 	def __init__(self, *args, **kwargs):
 		self.mocking = TC335
 
+		MockAbstractDevice.__init__(self, *args, **kwargs)
+		
 		self.mock_state = {}
 		self.mock_state['readingstatus'] = 0
 		self.mock_state['read_only'] = ['temperature']
-
-		MockAbstractDevice.__init__(self, *args, **kwargs)
 
 	def _reset(self):
 		pass
