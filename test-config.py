@@ -22,3 +22,8 @@ config['devices']['ch6VoltageSource'] = {
 	'manufacturer': 'IQC',
 	'model': 'ch6 Voltage source',
 }
+config['devices']['TC335'] = {
+    'address': {'gpib_board': 0, 'gpib_pad': 1}, #This address is wrong.
+    'manufacturer': 'Lakeshore',
+    'model': '335 Temperature Controller',
+}
