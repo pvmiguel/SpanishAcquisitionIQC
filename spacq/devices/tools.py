@@ -50,6 +50,77 @@ def quantity_unwrapped(units, multiplier=1.0):
 
 	return wrap
 
+def converted_quantity_unwrapped(units, multiplier=1.0):
+	"""
+	A variation of quantity_unwrapped that extracts the value in the units provided, and then applies the multiplier
+	if given.
+	"""
+
+	def wrap(f):
+		@wraps(f)
+		def wrapped(self, value):
+			value.assert_dimensions(units)
+			
+			# Perform conversion. Note that this is a bit of a trick. We must use a value of 1.0 because
+			# normalization messes up for Quantities with 0 magnitude.
+			new_value = Quantity(1.0, units)
+			new_value += value
+			new_value -= Quantity(1.0, units)
+			
+			return f(self, new_value.original_value * multiplier)
+
+		return wrapped
+
+	return wrap
+
+
+def dynamic_quantity_wrapped(units_attr_string, multiplier=1.0):
+	"""
+	A decorator for getters to wrap the plain device value into a quantity with a unit, where the unit
+	is defined by an attribute extracted from the device.
+	
+	Note: Will work on a chain of dotted attributes.
+	"""
+
+	def wrap(f):
+		@wraps(f)
+		def wrapped(self):
+			
+			units = reduce(getattr, units_attr_string.split('.'), self)
+#			units = getattr(self, units_attr_string)
+			
+			return Quantity(f(self) * multiplier, units)
+
+		return wrapped
+
+	return wrap
+
+def dynamic_converted_quantity_unwrapped(units_attr_string, multiplier=1.0):
+	"""
+	A variation of dynamic_quantity_unwrapped that will extract the units from an attribute of the device.
+	"""
+
+	def wrap(f):
+		@wraps(f)
+		def wrapped(self, value):
+			
+#			units = getattr(self, units_attr_string)
+			units = reduce(getattr, units_attr_string.split('.'), self)
+			
+			value.assert_dimensions(units)
+			
+			# Perform conversion. Note that this is a bit of a trick. We must use a value of 1.0 because
+			# normalization messes up for Quantities with 0 magnitude.
+			new_value = Quantity(1.0, units)
+			new_value += value
+			new_value -= Quantity(1.0, units)
+			
+			return f(self, new_value.original_value * multiplier)
+
+		return wrapped
+
+	return wrap
+
 
 class BlockDataError(Exception):
 	"""
