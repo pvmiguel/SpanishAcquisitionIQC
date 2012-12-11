@@ -28,7 +28,7 @@ class MeasurementConfigPanel(wx.Panel):
 			done = False
 			while not done:
 				name = 'New measurement {0}'.format(num)
-				self.var = InputVariable(name=name)
+				self.var = InputVariable(name=name, enabled=True) 
 
 				try:
 					self.global_store.variables[name] = self.var
