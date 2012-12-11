@@ -394,6 +394,11 @@ class ScalarLiveViewPanel(wx.Panel):
 
 		# Extract the value of a Quantity.
 		try:
+			# Label with the base dimensions.
+			#TODO: It would be nice if this code tried to place one of the listed units
+			#		in SIValues before spitting out the full decomposition.
+			if self.unit_conversion == 0:
+				self.plot.y_label = '({0})'.format(value.dimensions_string)
 			value = value.value
 		except AttributeError:
 			pass
