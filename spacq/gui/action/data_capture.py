@@ -9,9 +9,11 @@ import wx
 from wx.lib.filebrowsebutton import DirBrowseButton
 
 from spacq.interface.pulse.parser import PulseError
+from spacq.interface.units import IncompatibleDimensions
 from spacq.iteration.sweep import PulseConfiguration, SweepController
-from spacq.iteration.variables import sort_variables, InputVariable, OutputVariable
+from spacq.iteration.variables import sort_output_variables, sort_condition_variables, InputVariable, OutputVariable, ConditionVariable
 from spacq.tool.box import flatten, sift
+
 
 from ..tool.box import Dialog, MessageDialog, YesNoQuestionDialog
 
@@ -35,18 +37,20 @@ class DataCaptureDialog(Dialog, SweepController):
 		'dwell': 'Waiting for resources to settle',
 		'pulse': 'Running pulse program',
 		'read': 'Taking measurements',
+		'condition': 'Testing conditions',
+		'condition_dwell': 'Waiting for conditions to settle',
 		'ramp_down': 'Smooth setting',
 		'end': 'Finishing',
 	}
 
 	def __init__(self, parent, resources, variables, num_items, measurement_resources,
-			measurement_variables, pulse_config, continuous=False,
+			measurement_variables, condition_resources, condition_variables, pulse_config, continuous=False,
 			*args, **kwargs):
 		kwargs['style'] = kwargs.get('style', wx.DEFAULT_DIALOG_STYLE) | wx.RESIZE_BORDER
 
 		Dialog.__init__(self, parent, title='Sweeping...', *args, **kwargs)
 		SweepController.__init__(self, resources, variables, num_items, measurement_resources,
-				measurement_variables, pulse_config, continuous=continuous)
+				measurement_variables, condition_resources, condition_variables, pulse_config, continuous=continuous)
 
 		self.parent = parent
 
@@ -342,14 +346,18 @@ class DataCapturePanel(wx.Panel):
 		all_variables = [var for var in self.global_store.variables.values() if var.enabled]
 		output_variables = sift(all_variables, OutputVariable)
 		input_variables = [var for var in sift(all_variables, InputVariable) if var.resource_name != '']
+		condition_variables =  sift(all_variables, ConditionVariable)
 
 		if not output_variables:
 			output_variables.append(OutputVariable(order=0, name='<Dummy>', enabled=True))
 
-		output_variables, num_items = sort_variables(output_variables)
+		output_variables, num_items = sort_output_variables(output_variables)
+		condition_variables = sort_condition_variables(condition_variables)
 
 		resource_names = [tuple(var.resource_name for var in group) for group in output_variables]
 		measurement_resource_names = [var.resource_name for var in input_variables]
+		condition_resource_names = [tuple(set(flatten([var.resource_names for var in group]))) for group in condition_variables]
+
 
 		continuous = self.continuous_checkbox.Value
 
@@ -425,7 +433,7 @@ class DataCapturePanel(wx.Panel):
 						unwritable_resources.add(name)
 
 			resources.append(tuple(group_resources))
-
+			
 		measurement_resources = []
 		measurement_units = []
 		for name in measurement_resource_names:
@@ -439,6 +447,26 @@ class DataCapturePanel(wx.Panel):
 					measurement_units.append(resource.display_units)
 				else:
 					unreadable_resources.add(name)
+				
+		condition_resources = []
+		for group in condition_resource_names:
+			group_resources = []
+			
+			for name in group:
+				if name not in self.global_store.resources:
+					missing_resources.add(name)
+				else:
+					resource = self.global_store.resources[name]
+
+					if resource.readable:
+						group_resources.append((name, resource))
+					else:
+						#the name may already have been put here by the loop assigning
+						#to measurement_resources
+						if name not in unreadable_resources:
+							unreadable_resources.add(name)
+
+			condition_resources.append(tuple(group_resources))
 
 		mismatched_resources = []
 		for (res_name, resource), var in zip(flatten(resources), flatten(output_variables)):
@@ -469,6 +497,60 @@ class DataCapturePanel(wx.Panel):
 		if (missing_resources or unreadable_resources or unwritable_resources or
 				missing_devices or mismatched_resources):
 			return
+		
+		# Check that all the condition arguments are compatible with one another.
+		
+		for cvar in flatten(condition_variables):
+			
+			# Get a condition.
+			for cond in cvar.conditions:
+								
+				value1 = cond.arg1
+				value2 = cond.arg2
+				resource1 = None
+				resource2 = None
+				
+				# If working with resources, use their values as the values, and make the resource available
+				
+				if cond.type1 == 'resource name':
+					resource1 = [resource for (name, resource) in flatten(condition_resources) if name == cond.arg1][0]
+					value1 = resource1.value
+				if cond.type2 == 'resource name':
+					resource2 = [resource for (name, resource) in flatten(condition_resources) if name == cond.arg2][0]
+					value2 = resource2.value
+				
+				# Check if the other argument is in the allowed values
+				
+				if hasattr(resource1,'allowed_values') and resource1.allowed_values is not None:
+					if value2 not in resource1.allowed_values:
+						MessageDialog(self, 'In the condition {0}, {1} is not in allowed_values of {2}.'.format(cond, value2, cond.arg1),'Condition error').Show()
+						return
+				if hasattr(resource2,'allowed_values') and resource2.allowed_values is not None:
+					if value1 not in resource2.allowed_values:
+						MessageDialog(self, 'In the condition {0}, {1} is not in allowed_values of {2}.'.format(cond, value1, cond.arg2),'Condition error').Show()
+						return
+
+				# Check if units agree.
+				
+				if resource1 is not None and resource1.units is not None:
+					try:
+						value1.assert_dimensions(value2)
+					except ValueError:
+						MessageDialog(self, 'In the condition {0}, {1} does not have a dimension.'.format(cond, value2),'Condition error').Show()
+						return
+					except IncompatibleDimensions:
+						MessageDialog(self, 'In the condition {0}, {1} and {2} do not have matching dimensions.'.format(cond, value1, value2),'Condition error').Show()
+						return
+				if resource2 is not None and resource2.units is not None:
+					try:
+						value2.assert_dimensions(value1)
+					except ValueError:
+						MessageDialog(self, 'In the condition {0}, {1} does not have a dimension.'.format(cond, value1),'Condition error').Show()
+						return
+					except IncompatibleDimensions:
+						MessageDialog(self, 'In the condition {0}, {1} and {2} do not have matching dimensions.'.format(cond, value1, value2),'Condition error').Show()
+						return
+
 
 		exporting = False
 		if self.export_enabled.Value:
@@ -507,7 +589,7 @@ class DataCapturePanel(wx.Panel):
 		self.capture_dialogs += 1
 
 		dlg = DataCaptureDialog(self, resources, output_variables, num_items, measurement_resources,
-				input_variables, pulse_config, continuous=continuous)
+				input_variables, condition_resources, condition_variables, pulse_config, continuous=continuous)
 		dlg.SetMinSize((500, -1))
 
 		for name in measurement_resource_names:

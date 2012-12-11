@@ -3,9 +3,9 @@ import numpy
 import operator
 
 from spacq.interface.units import Quantity
+from spacq.tool.box import flatten
 
-
-def sort_variables(variables):
+def sort_output_variables(variables):
 	"""
 	Sort and group the variables based on their order.
 
@@ -37,31 +37,153 @@ def sort_variables(variables):
 				num_in_group = num_in_var
 
 		num_items *= num_in_group
-
+		
 	if const_vars:
 		grouped.insert(0, const_vars)
 
 	return grouped, num_items
 
+def sort_condition_variables(variables):
+	"""
+	Sort and group condition variables based on their order.
+	This function is similar to sort_output_variables.
+
+	The returned value is:
+		variables sorted and grouped by their order
+
+	"""
+
+	# Ignore disabled variables entirely!
+	variables = [var for var in variables if var.enabled]
+
+	if not variables:
+		return []
+
+	order_attr = operator.attrgetter('order')
+	ordered = sorted(variables, key=order_attr, reverse=True)
+	grouped = [tuple(vars) for order, vars in groupby(ordered, order_attr)]
+
+	return grouped
 
 class Variable(object):
 	"""
 	An abstract superclass for all variables.
 	"""
 
-	def __init__(self, name, enabled=False, resource_name=''):
+	def __init__(self, name, enabled=False):
 		self.name = name
 		self.enabled = enabled
-		self.resource_name = resource_name
+
+
+class ConditionVariable(Variable):
+	"""
+	A condition variable. Used to define conditions to make loops in the sweep controller indefinite.
+	"""
+	
+	#TODO: a speedier design would have each condition paired up with its resource name so that
+	#when evaluating conditions, there aren't as many conditions to search through.
+	#Note that this is at a cost of storage space.
+	
+	def __init__(self, order, resource_names=None, conditions=[], wait = '100 ms', *args, **kwargs):
+		Variable.__init__(self, *args,**kwargs)
+		
+		self.order = order
+		self.conditions = conditions
+		self._wait = Quantity(wait)
+		self.resource_names = resource_names
+		
+	def evaluate_conditions(self, condition_resources=None):
+		"""
+		Checks the conditions where condition_resources contains the resources required to evaluate the
+		conditions.
+		"""
+		# We take OR of all the conditions.
+		boolean = False
+		for condition in self.conditions:
+			boolean = boolean or condition.evaluate(condition_resources)
+		
+		if not self.conditions:
+			boolean = True
+		
+		return boolean
+	
+	@property
+	def wait(self):
+		return str(self._wait)
+
+	@wait.setter
+	def wait(self, value):
+		wait = Quantity(value)
+		wait.assert_dimensions('s')
+				
+		self._wait = wait
+		
+	def __str__(self):
+		return '['+', '.join(map(str,self.conditions))+']'
+		
+class Condition(object):
+	"""
+	A class used to represent a condition.
+	"""
+	
+	#TODO: This could be generalized to have arbitrary conditional statements...but this will
+	# require a parser for a general conditional string.
+	
+	allowed_types = set(['string', 'float', 'integer', 'quantity', 'resource name','resource'])
+	
+	def __init__(self, type1, type2, arg1, op_symbol, arg2):
+		for type in [type1, type2]:
+			if type not in self.allowed_types:
+				raise ValueError('Condition cannot be of type {0}.'.format(type))
+		
+		self.type1 = type1
+		self.type2 = type2
+		self.arg1 = arg1
+		self.arg2 = arg2
+		self.op_symbol = op_symbol
+				
+	def evaluate(self, resources=None):
+		"""
+		Evaluate a condition. 'resources' comes as a list of 2-tuples (name, resource obj).
+		"""
+		op = {'>':operator.gt, '==':operator.eq, '!=':operator.ne, '<':operator.lt}
+		
+		arg1_to_evaluate = self.arg1
+		arg2_to_evaluate = self.arg2
+		
+		# We retrieve the values from the resources if the arguments are resource names
+		if resources:
+			for name, resource in resources:
+				if name == self.arg1 and self.type1 == 'resource name':
+					arg1_to_evaluate = resource.value
+				if name == self.arg2 and self.type2 == 'resource name':
+					arg2_to_evaluate = resource.value
+					
+		if self.type1 == 'resource':
+			arg1_to_evaluate = self.arg1.value
+		if self.type2 == 'resource':
+			arg2_to_evaluate = self.arg2.value
+
+		boolean = op[self.op_symbol](arg1_to_evaluate, arg2_to_evaluate)
+		
+		return boolean
+
+
+
+	def __str__(self):
+		return '{0} {1} {2}'.format(self.arg1,self.op_symbol,self.arg2)
+		
+		
 
 
 class InputVariable(Variable):
 	"""
 	An input (measurement) variable.
 	"""
-
-	def __init__(self, *args, **kwargs):
+	def __init__(self, resource_name='', *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
+		
+		self.resource_name = resource_name
 
 
 class OutputVariable(Variable):
@@ -75,8 +197,10 @@ class OutputVariable(Variable):
 	# Maximum number of values to search through for the end.
 	search_values = 1000
 
-	def __init__(self, order, config=None, wait='100 ms', const=0.0, use_const=False, *args, **kwargs):
+	def __init__(self, order, config=None, wait='100 ms', const=0.0, use_const=False, resource_name='', *args, **kwargs):
 		Variable.__init__(self, *args, **kwargs)
+		
+		self.resource_name = resource_name
 
 		self.order = order
 
@@ -107,8 +231,9 @@ class OutputVariable(Variable):
 	def wait(self, value):
 		wait = Quantity(value)
 		wait.assert_dimensions('s')
-
+				
 		self._wait = wait
+
 
 	def with_type(self, value):
 		"""

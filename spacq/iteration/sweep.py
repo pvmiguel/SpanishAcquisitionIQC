@@ -5,6 +5,7 @@ from functools import partial, wraps
 from itertools import izip, repeat
 from threading import Condition, Thread
 from time import sleep, time
+import operator
 
 from spacq.tool.box import flatten
 
@@ -59,15 +60,31 @@ class SweepController(object):
 	^       ^                                  |_____________^  |            |
 	|       |___________________________________________________|            |
 	|________________________________________________________________________|
+	
+	
+	
+	new picture (after adding condition variables):
+	
+															 conditional_dwell
+																v       ^
+	init -> next -> transition -> write -> dwell -> pulse -> read -> condition -> ramp_down -> end
+	^       ^                                  |_____________^  |                      |
+	|       |___________________________________________________|                      |
+	|__________________________________________________________________________________|	
+	
+
 	"""
 
 	def __init__(self, resources, variables, num_items, measurement_resources, measurement_variables,
-			pulse_config=None, continuous=False):
+			condition_resources=[], condition_variables=[], pulse_config=None, continuous=False):
 		self.resources = resources
-		self.variables = variables
-		self.num_items = num_items
+		self.variables = variables 
+		self.num_items = num_items 
 		self.measurement_resources = measurement_resources
 		self.measurement_variables = measurement_variables
+		#TODO: Instead of flattening, make use of the group ordering for quicker access
+		self.condition_resources = [cond_tuple for cond_tuple in flatten(condition_resources)] 
+		self.condition_variables = condition_variables
 		self.pulse_config = pulse_config
 		self.continuous = continuous
 
@@ -92,7 +109,56 @@ class SweepController(object):
 
 		self.sweep_start_time = time()
 		self.first_time_point = None
+		
+		self.orders = [vars[0].order for vars in self.variables]
+		self.orders.reverse()
+		self.condition_orders = [group[0].order for group in self.condition_variables]
+		self.conditional_wait = 0
+		self.order_periods = None
+		
+	def compute_order_periods(self):
+		"""
+		This function computes the number of elements iterated before each order changes.
+		"""
+		periods = []
+		orders = []
+		
 
+		
+		for group in reversed(self.variables):
+			#skip if vars in group are consts.
+			if group[0].use_const != 1:
+				num_in_group = None
+		
+				#get the length of the group
+				for var in group:
+					num_in_var = len(var)
+		
+					if num_in_group is None or num_in_var < num_in_group:
+						num_in_group = num_in_var
+				
+				#append the period of this group and its order.
+				if not periods:
+					periods.append(num_in_group)
+				else:
+					periods.append(periods[-1]*num_in_group)
+					
+				orders.append(group[0].order)
+		
+		
+		for order in self.condition_orders:
+			if order not in orders:
+				orders.append(order)
+				orders.sort()
+				new_index = orders.index(order)
+				if new_index > 0:
+					periods.insert(new_index, periods[new_index - 1])
+				else: #if the condition is the smallest order, it has a period of 1
+					periods.insert(new_index, 1)
+			
+		# create a dict.
+		self.order_periods = dict(zip(orders, periods))
+			
 	def create_iterator(self, pos):
 		"""
 		Create an iterator for an order of variables.
@@ -148,6 +214,7 @@ class SweepController(object):
 			return
 
 		save_callback(value)
+		
 
 	def run(self, next_f=None):
 		"""
@@ -203,7 +270,9 @@ class SweepController(object):
 		self.last_values = None
 
 		self.item = -1
-
+		
+		self.compute_order_periods()
+		
 		if not self.devices_configured:
 			log.debug('Configuring devices')
 
@@ -224,7 +293,7 @@ class SweepController(object):
 		"""
 		Get the next set of values from the iterators.
 		"""
-
+		
 		self.item += 1
 		if self.current_values is not None:
 			self.last_values = self.current_values[:]
@@ -237,22 +306,25 @@ class SweepController(object):
 
 			self.current_values = [it.next() for it in self.iterators]
 			self.changed_indices = range(len(self.variables))
+			
+			# Calculate where the end of each order is.
 		else:
 			pos = len(self.variables) - 1
-			while pos >= 0:
+			while pos >= 0: 
 				try:
 					self.current_values[pos] = self.iterators[pos].next()
 					break
 				except StopIteration:
 					self.iterators[pos] = self.create_iterator(pos)
 					self.current_values[pos] = self.iterators[pos].next()
+					
 
 					pos -= 1
-
+					
 			self.changed_indices = range(pos, len(self.variables))
 
 		return self.transition
-
+	
 	@update_current_f
 	def transition(self):
 		"""
@@ -421,7 +493,6 @@ class SweepController(object):
 		"""
 		Take measurements.
 		"""
-
 		measurements = [None] * len(self.measurement_resources)
 
 		thrs = []
@@ -436,7 +507,7 @@ class SweepController(object):
 				thrs.append(thr)
 				thr.daemon = True
 				thr.start()
-
+		
 		for thr in thrs:
 			thr.join()
 
@@ -448,13 +519,63 @@ class SweepController(object):
 				cur_time = time() - self.first_time_point
 
 			self.data_callback(cur_time, tuple(flatten(self.current_values)), tuple(measurements))
+			
 
-		if self.item == self.num_items - 1:
-			self.item += 1
+		return self.condition
 
-			return self.ramp_down
-		else:
-			return self.next
+		
+	@update_current_f
+	def condition(self):
+		"""
+		Stalls an order's loop (after the order's variables have been exhausted)
+		with repeated measurements until conditions are true.
+		Once conditions are true, then the sweep controller moves on to the next order
+		and continues as usual.
+		"""		
+		boolean = True
+		
+		if self.condition_variables:
+				
+			# Find the orders that have changed
+			orders_changed = []
+			for order in self.order_periods.keys():
+				if (self.item + 1) % self.order_periods[order] == 0:
+					orders_changed.append(order)
+			orders_changed.sort()
+			
+			# The wait time is defined by the max of the wait times of the lowest triggered order of condition variables
+			self.conditional_wait = 0
+			for order in orders_changed:
+				if order in self.condition_orders:
+					corresponding_index = self.condition_orders.index(order)
+					for var in self.condition_variables[corresponding_index]:
+						if var._wait.value > self.conditional_wait:
+							self.conditional_wait = var._wait.value
+					break
+			
+			# Check the conditions for the changed orders, starting from the lowest order.
+			for order in orders_changed:
+				if order in self.condition_orders:
+					for var in self.condition_variables[self.condition_orders.index(order)]:
+						boolean_to_compound = var.evaluate_conditions(self.condition_resources)
+						boolean = boolean and boolean_to_compound
+								
+		if boolean == True:
+			if self.item == self.num_items - 1:
+				self.item += 1
+				return self.ramp_down
+			else:
+				return self.next
+		if boolean == False:
+			return self.conditional_dwell
+					
+	def conditional_dwell(self):
+		"""
+		Dwell for the max time defined by the conditions in the current order.
+		"""
+		sleep(self.conditional_wait)
+		return self.read
+
 
 	@update_current_f
 	def ramp_down(self):

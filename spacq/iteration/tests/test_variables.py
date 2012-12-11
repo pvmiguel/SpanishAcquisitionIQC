@@ -2,17 +2,18 @@ from nose.tools import assert_raises, eq_
 from unittest import main, TestCase
 
 from spacq.interface.units import IncompatibleDimensions, Quantity
+from spacq.interface.resources import Resource
+from functools import partial
 
 from .. import variables
 
-
-class SortVariablesTest(TestCase):
+class SortOutputVariablesTest(TestCase):
 	def testEmpty(self):
 		"""
 		Use no variables.
 		"""
 
-		sorted_variables, num_items = variables.sort_variables([])
+		sorted_variables, num_items = variables.sort_output_variables([])
 
 		eq_(sorted_variables, [])
 		eq_(num_items, 0)
@@ -25,7 +26,7 @@ class SortVariablesTest(TestCase):
 		var = variables.OutputVariable(config=variables.LinSpaceConfig(-5.0, 5.0, 11),
 				name='Name', order=0, enabled=True, const=60.0)
 
-		sorted_variables, num_items = variables.sort_variables([var])
+		sorted_variables, num_items = variables.sort_output_variables([var])
 
 		eq_(sorted_variables, [(var,)])
 		eq_(num_items, 11)
@@ -50,12 +51,115 @@ class SortVariablesTest(TestCase):
 					name='F', order=5, enabled=True, const=5.5, use_const=True),
 		]
 
-		sorted_variables, num_items = variables.sort_variables(vars)
+		sorted_variables, num_items = variables.sort_output_variables(vars)
 
 		eq_(sorted_variables, [(vars[2], vars[5]), (vars[0],), (vars[1], vars[3])])
 		eq_(num_items, 6)
 
+class ConditionVariableTest(TestCase):
+	
+	# It goes without saying that if condition variables are upgraded
+	# with a general boolean parser that these tests will have to be changed.
+	
+	def testEvaluateConditions(self):
+		"""
+		See if a condition variable evaluates its conditions
+		properly.
+		"""
+		
+		# Define conditions.
+		c1 = variables.Condition('integer','integer',1,'<',3) #True
+		c2 = variables.Condition('integer','integer',1,'>',3) #False
+		
+		# Define condition variables.
+		cv0 = variables.ConditionVariable(1,conditions=[c1], name='cv0')
+		cv1 = variables.ConditionVariable(1,conditions=[c1,c1], name='cv1')
+		cv2 = variables.ConditionVariable(1,conditions=[c1,c2], name='cv2')
+		cv3 = variables.ConditionVariable(1,conditions=[c2,c2,c2,c1], name='cv3')
+		cv4 = variables.ConditionVariable(1,conditions=[c2,c2], name='cv4')
+		
+		# Evaluate a simple case.
+		eq_(cv0.evaluate_conditions(),True)
+		
+		# Check if it is ORing properly.
+		eq_(cv1.evaluate_conditions(),True)
+		eq_(cv2.evaluate_conditions(),True)
+		eq_(cv3.evaluate_conditions(),True)
+		eq_(cv4.evaluate_conditions(),False)
+	
+	def testEvaluateCondition(self):
+		"""
+		Test if evaluating conditions works properly
+		for different combinations of types.
+		"""
+		# Some variables to use for tests.
+		
+		res_bufs = [[], [], [], []]
 
+		def setter(i, value):
+			res_bufs[i].append(value)
+			
+		def getter(i):
+			return res_bufs[i][0]
+			
+			
+		a = Quantity('5 T')
+		b = Quantity('50 kG')
+		c = 'on'
+
+		res0 = Resource(getter=partial(getter,0), setter=partial(setter, 0))
+		res0.units = 'T'
+		res1 = Resource(getter=partial(getter,1), setter=partial(setter, 1))
+		res1.units = 'kG'
+		res2 = Resource(getter=partial(getter,2), setter=partial(setter, 2))
+		res2.allowed_values = ['on','off']
+		
+		res0.value = a
+		res1.value = b
+		res2.value = c
+
+		# Check 2 quantities of equivalent units.
+		c1 = variables.Condition('quantity','quantity',a,'==',b)
+		eq_(c1.evaluate(), True)
+		
+		# Check a resource against a quantity.
+		c2 = variables.Condition('resource','quantity',res0,'==',a)
+		eq_(c2.evaluate(), True)
+		
+		# Check a resource with a resource.
+		c3 = variables.Condition('resource','resource',res0,'==',res1)
+		eq_(c3.evaluate(), True)
+		
+		# Check a resource that has an allowed value with a string.
+		c4 = variables.Condition('resource','string',res2,'==',c)
+		eq_(c4.evaluate(), True)
+		
+		# Test evaluating resource names.
+		resources = [('res0',res0),('res1',res1),('res2',res2)]
+		c3 = variables.Condition('resource name','resource name','res0','==','res1')
+		eq_(c3.evaluate(resources), True)
+		
+		# Check some things that should mess up.
+		
+		## string instead of quantity.
+		try:
+			c5 = variables.Condition('resource','string',res0,'==','5 T')
+			eq_(c5.evaluate(), True)
+		except TypeError:
+			pass
+		else:
+			assert False, 'Expected TypeError.'
+		
+		## not matching units.
+		try:
+			c6 = variables.Condition('quantity','quantity',Quantity('5 A'),'==',Quantity('5 T'))
+			eq_(c6.evaluate(), True)
+		except IncompatibleDimensions:
+			pass
+		else:
+			assert False, 'Expected IncompatibleDimensions error.'
+		
+		
 class OutputVariableTest(TestCase):
 	def testAdjust(self):
 		"""
