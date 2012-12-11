@@ -13,22 +13,21 @@ Lakeshore 335 Temperature Controller
 Read temperature (TODO: Add more functionality)
 """
 
-
 class TC335(AbstractDevice):
 	"""
 	Interface for Lakeshore 335 Temperature Controller
 	"""
-
+	
 	def _setup(self):
 		AbstractDevice._setup(self)
 
 		# Resources.
-		read_only = ['reading']
-		for name in read_only:
+		self.read_only = ['temperature']
+		for name in self.read_only:
 			self.resources[name] = Resource(self, name)
 
-		self.resources['reading'].units = 'K'
-
+		self.resources['temperature'].units = 'K'
+								
 	@Synchronized()
 	def _connected(self):
 		AbstractDevice._connected(self)
@@ -49,7 +48,7 @@ class TC335(AbstractDevice):
 	@property
 	@quantity_wrapped('K')
 	@Synchronized()
-	def reading(self):
+	def temperature(self):
 		"""
 		The value measured by the device, as a quantity in V.
 		"""
