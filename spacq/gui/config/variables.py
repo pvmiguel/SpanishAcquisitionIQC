@@ -567,7 +567,7 @@ class VariablesPanel(wx.Panel):
 		row_box = wx.BoxSizer(wx.HORIZONTAL)
 		button_box.Add(row_box, flag=wx.LEFT, border=20)
 
-		add_button = wx.Button(self, wx.ID_ADD)
+		add_button = wx.Button(self, wx.ID_ADD, label='Add Output')
 		add_button.Bind(wx.EVT_BUTTON, self.OnAddVariable)
 		row_box.Add(add_button)
 		
