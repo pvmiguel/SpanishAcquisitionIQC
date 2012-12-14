@@ -13,4 +13,4 @@ else
 	TEST_CONFIG=""
 fi
 
-nosetests $TEST_CONFIG --exclude=test-config.py $EXCLUDE $@
+nosetests $TEST_CONFIG --exclude=test-config.py $EXCLUDE $@ --exe
