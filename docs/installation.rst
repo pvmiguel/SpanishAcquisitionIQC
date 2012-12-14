@@ -7,19 +7,15 @@ Installation
 Installation procedure
 **********************
 
-The `latest version available on PyPI`_ can be installed using either::
+1. Get the source by running::
 
-   sudo pip install SpanishAcquisition
+	git clone https://github.com/ghwatson/SpanishAcquisitionIQC.git
 
-or::
+2. From the SpanishAcquisitionIQC directory, run::
 
-   sudo easy_install SpanishAcquisition
+	sudo python setup.py install
 
-Alternatively, this package can be installed from source in the usual way::
-
-   sudo python setup.py install
-
-.. _`latest version available on PyPI`: http://pypi.python.org/pypi/SpanishAcquisition/
+3. Copy the example apps to another directory (eg. ~/spacq_apps)
 
 Dependencies
 ************

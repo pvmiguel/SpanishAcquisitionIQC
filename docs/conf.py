@@ -37,7 +37,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Spanish Acquisition'
+project = u'Spanish Acquisition IQC'
 copyright = u'2011, Dmitri Iouchtchenko'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -172,7 +172,7 @@ htmlhelp_basename = 'SpanishAcquisitiondoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'SpanishAcquisition.tex', u'Spanish Acquisition Documentation',
+  ('index', 'SpanishAcquisitionIQC.tex', u'Spanish Acquisition IQC Documentation',
    u'Dmitri Iouchtchenko', 'manual'),
 ]
 
