@@ -7,8 +7,6 @@ from spacq.iteration.variables import ConditionVariable, Condition
 
 from ..tool.box import Dialog, MessageDialog, load_pickled, save_pickled
 
-from functools import partial
-
 """
 An interface for creating and editing Variable objects.
 """
