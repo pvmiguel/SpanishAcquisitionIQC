@@ -112,13 +112,13 @@ Condition variables provide a way to halt a sweep until user-defined conditions 
 Order
 =====
 
-Each condition variable can be assigned an order, which serves a similar purpose as an output variable's :ref:`order <general_concepts_condition_variables_order>`.  Whenever the output variables in a particular order have iterated through their values, condition variables with this same order are checked to see if they are all true (in effect, 'AND'ing). The sweep will not progress in any fashion until this is so. Every time a condition variable is checked, a new set of measurements are obtained, as defined by the input variables.
+Each condition variable can be assigned an order, which serves a similar purpose as an output variable's :ref:`order <general_concepts_condition_variables_order>`.  Whenever the output variables in a particular order have iterated through their values, condition variables with this same order are repeatedly checked to see if they are all true (in effect, 'AND'ing). The sweep will not progress in any fashion until this is so. Every time a condition variable is checked, a new set of measurements are obtained, as defined by the input variables.
 
 .. warning::
    For every check of an order's condition variables, variables in lower orders are not re-iterated.  The sweep is halted until the conditions are true.
 
 If a condition variable is assigned an order that has no output variables present, then it is treated as if it had the same order as the nearest order below it containing an output variable.
-There is one important exception: if a condition variable is assigned an order with no output variables present, and there are no lesser orders that contain any output variables, then the condition variable will be checked after every single iteration of a sweep. This is useful for taking measurements while some resource is changing in response to the last iteration's assigned value.
+There is one important exception: if a condition variable is assigned an order with no output variables present, and there are no lesser orders that contain any output variables, then the condition variable will be checked after every single iteration of a sweep. This is useful for taking measurements while some resource is changing in response to the last iteration's assigned values.
 
 .. tip::
    If a device's interface has the ability to perform sweeps, then condition variables can be used to take measurements while this sweep is 	 occurring by using the exception discussed above.

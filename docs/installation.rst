@@ -17,7 +17,9 @@ Installation procedure
 
 3. Copy the example apps to another directory (eg. ~/spacq_apps)
 
-4. Build the offline docs with `make -C docs html` while in the SpanishAcquisitionIQC directory that was taken from Git.
+4. While in the SpanishAcquisitionIQC directory, build the offline docs with:: 
+
+	make -C docs html
 
 5. Create desktop shortcuts ("launchers"):
 

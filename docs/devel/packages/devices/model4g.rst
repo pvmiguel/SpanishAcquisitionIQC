@@ -24,12 +24,12 @@ Along with all the resources that are mostly direct representations of controls 
 * **virt_heater_wait_mode**: If set to 1, Spanish Acquisition will sleep for a second after a persistent switch heater is toggled.
 * **virt_sweep_sleep**: The application halting functionality within **virt_imag** and **virt_iout** will double-check if the sweep is complete.  **virt_sweep_sleep** defines a sleep delay between the first and second check.  This is useful for dealing with the overshoot that may occur in reaching the target with the sweep.  It is possible that the halting functionality will see the sweep as complete when the present current equals the target current just before overshooting.
 
-Note that these virtual resources are not internally independent with respect to the lower level resources.  For example, **virt_iout_sweep_to** and **virt_imag_sweep_to** both will change the power supply current.  This is because, as the manual should make clear, in order to change the magnet current the power supply current is changed while a persistent switch heater is on.
+Note that these virtual resources are not internally independent with respect to the lower level resources.  For example, **virt_iout_sweep_to** and **virt_imag_sweep_to** both will change the power supply current.  This is because, as the manual should make clear, in order to change the magnet current the power supply current is changed while the persistent switch heater is on.
 
 Usage with condition variables
 ******************************
 
-If using the virtual resources **virt_iout_sweep_to** or **virt_imag_sweep_to**, :ref:`condition variables <general_concepts_condition_variables>` can be used to acquire measurements while the power supply is sweeping.  To do this, make use of the behaviour that occurs when a condition variable is in an order below all the output variables.
+If using the resources **virt_iout_sweep_to** or **virt_imag_sweep_to**, :ref:`condition variables <general_concepts_condition_variables>` can be used to acquire measurements while the power supply is sweeping.  To do this, make use of the behaviour that occurs when a condition variable is in an order below all the output variables.
 
 
 .. _device_specific_model4g_energy_saving_modes:

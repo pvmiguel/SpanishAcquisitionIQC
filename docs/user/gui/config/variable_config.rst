@@ -18,7 +18,7 @@ The variable configuration panel is used to set up :ref:`output variables <gener
 
    1. The "enabled" checkbox. Variables which do not have this checked (such as **gate 3**) effectively do not exist; this is useful for temporarily disabling variables.
    2. A unique label to identify the variable. This name appears, for example, as a column heading when capturing data.
-   3. The order number of variables is used to group them during the sweep. **gate 1** and **gate 4** have the same order, so would be stepped together in the inner loop; **magnetic field** has a higher order number, and so will be stepped alone in the outer loop. **gate 4 check** would be checked at the end of the inner loop's stepping (ie, before the outer loop changes).
+   3. The order number of variables is used to group them during the sweep. **gate 1** and **gate 4** have the same order, so would be stepped together in the inner loop; **magnetic field** has a higher order number, and so will be stepped alone in the outer loop. **gate 1 condition** would be checked at the end of the inner loop's stepping (ie, before the outer loop changes).
    4. The resource label for the resource to which to write the values. All the resources provided must be writable. If a resource is not provided (such as with **gate 4**), the variable is still stepped in the usual fashion, but its values are discarded. Notice that for conditions, "N/A" is written.  The user is not able to write to this field.
    5. The values over which the output variable will be stepped. If there are too many values, some are omitted from the display. The symbols on either side of the values specify whether that side is set smoothly: "(" and ")" if smoothly (as for **gate 1**); "[" and "]" if not (as for the other variables).
 
@@ -28,7 +28,7 @@ The variable configuration panel is used to set up :ref:`output variables <gener
 
    6. For each step of an output variable, after writing the value to the resource, there is a delay of at least the wait time. In each order, the delay for all output variables is the longest of the wait times in that order. The effective wait time for **gate 4** is 200 ms.  
 
-      For condition variables, this represents a delay that is held after a condition is checked and before measurements are taken again (which may update the condition variables' boolean values).
+      For condition variables, this represents a delay that is held after a condition is checked and before measurements are taken again.  The condition variable's overall boolean value could change within this timespan.
    7. The "const" checkbox. Variables which have this checked (such as **gate 2**) are considered *constant* and are subject to special consideration in some scenarios.
 
       Condition variables do not have this attribute.
@@ -126,8 +126,8 @@ The condition editor dialog is used to setup the conditions housed within a cond
 
    ..
 
-    1. Conditions are listed here.  Double-clicking on a condition will open the :ref:`condition editor <variable_config_condition_variable_editor_dialog_condition_editor>`.
-    2. Conditions can be added or removed.
+1. Conditions are listed here.  Double-clicking on a condition will open the :ref:`condition editor <variable_config_condition_variable_editor_dialog_condition_editor>`.
+2. Conditions can be added or removed.
 
 
 .. _variable_config_condition_variable_editor_dialog_condition_editor:
