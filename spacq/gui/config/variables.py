@@ -784,7 +784,8 @@ class GuiVariable(object):
 	Wraps variables for displaying in the ObjectListView.
 	This variable will act like the wrapped variable, but will also contain attributes
 	describing how the values should be edited.
-	If the variable doesn't have the attribute, then "N/A" is returned.
+	If the variable doesn't have the attribute, then this class creates that attribute
+	and assigns it a value of 'N/A'. 
 	"""
 	def __init__(self, var, vartype):
 		
@@ -817,7 +818,7 @@ class GuiVariable(object):
 										'type', 'units')
 		
 	def __getattr__(self, name):
-		#If the gui variable doesn't have the resource, then return this string.
-		return 'N/A' 
-			
-		
+		#If the gui variable doesn't have the attribute, then create the attribute
+		#with a value of 'N/A', and return its value.
+		setattr(self,name,'N/A')
+		return getattr(self, name)
