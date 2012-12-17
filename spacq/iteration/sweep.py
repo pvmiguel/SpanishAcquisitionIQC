@@ -5,7 +5,6 @@ from functools import partial, wraps
 from itertools import izip, repeat
 from threading import Condition, Thread
 from time import sleep, time
-import operator
 
 from spacq.tool.box import flatten
 

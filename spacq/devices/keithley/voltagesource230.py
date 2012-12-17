@@ -5,7 +5,7 @@ from spacq.interface.resources import Resource
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice
-from ..tools import quantity_wrapped, quantity_unwrapped
+from ..tools import quantity_unwrapped
 
 """
 Keithley 230 Programmable Voltage Source

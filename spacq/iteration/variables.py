@@ -3,7 +3,7 @@ import numpy
 import operator
 
 from spacq.interface.units import Quantity
-from spacq.tool.box import flatten
+
 
 def sort_output_variables(variables):
 	"""

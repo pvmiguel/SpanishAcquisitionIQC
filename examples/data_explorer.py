@@ -5,7 +5,6 @@ logging.basicConfig(level=logging.WARNING)
 
 from functools import partial
 import wx
-import sys
 
 from numpy import concatenate
 
