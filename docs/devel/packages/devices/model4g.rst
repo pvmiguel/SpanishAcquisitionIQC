@@ -21,6 +21,8 @@ Along with all the resources that are mostly direct representations of controls 
 * **virt_iout**: The same as **virt_iout_sweep_to**, but after starting the sweep, Spanish Acquisition will halt until the sweep is complete. In effect, this is a dynamic version of the wait time that output variables can be assigned.  The output gives the power supply current.
 * **virt_imag**: Same as **virt_imag**, but for magnet current.  Note that this is also affected by **virt_energysave_mode**.  The output gives the magnet current.
 * **virt_energysave_mode**: Supplies a variety of modes to save energy when using **virt_imag**, described in :ref:`energy saving modes <device_specific_model4g_energy_saving_modes>`.
+* **virt_heater_wait_mode**: If set to 1, Spanish Acquisition will sleep for a second after a persistent switch heater is toggled.
+* **virt_sweep_sleep**: The application halting functionality within **virt_imag** and **virt_iout** will double-check if the sweep is complete.  **virt_sweep_sleep** defines a sleep delay between the first and second check.  This is useful for dealing with the overshoot that may occur in reaching the target with the sweep.  It is possible that the halting functionality will see the sweep as complete when the present current equals the target current just before overshooting.
 
 Note that these virtual resources are not internally independent with respect to the lower level resources.  For example, **virt_iout_sweep_to** and **virt_imag_sweep_to** both will change the power supply current.  This is because, as the manual should make clear, in order to change the magnet current the power supply current is changed while a persistent switch heater is on.
 
