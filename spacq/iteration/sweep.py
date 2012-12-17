@@ -56,23 +56,13 @@ class SweepController(object):
 	"""
 	A simple controller for a sweep of several variables.
 
-	init -> next -> transition -> write -> dwell -> pulse -> read -> ramp_down -> end
-	^       ^                                  |_____________^  |            |
-	|       |___________________________________________________|            |
-	|________________________________________________________________________|
-	
-	
-	
-	new picture (after adding condition variables):
-	
 															 conditional_dwell
 																v       ^
 	init -> next -> transition -> write -> dwell -> pulse -> read -> condition -> ramp_down -> end
-	^       ^                                  |_____________^  |                      |
-	|       |___________________________________________________|                      |
+	^       ^                                  |_____________^           |             |
+	|       |____________________________________________________________|             |
 	|__________________________________________________________________________________|	
 	
-
 	"""
 
 	def __init__(self, resources, variables, num_items, measurement_resources, measurement_variables,
