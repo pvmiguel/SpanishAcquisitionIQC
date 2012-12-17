@@ -445,18 +445,18 @@ class Channel(AbstractSubdevice):
         elif self.virt_energysave_mode == 3:
             self.virt_sync_currents = 'start'
             self._wait_for_sweep()
-            self.device.both_persistent_switch_heaters = 'on'
+            self.device.virt_both_persistent_switch_heaters = 'on'
             self.virt_iout = Quantity(value,self._units)
-            self.device.both_persistent_switch_heaters = 'off'
+            self.device.virt_both_persistent_switch_heaters = 'off'
             self.sweep = 'zero'
         elif self.virt_energysave_mode == 2:
             self.persistent_switch_heater = 'on'
             self.virt_iout = Quantity(value,self._units)
             self.persistent_switch_heater = 'off'
         elif self.virt_energysave_mode == 1:
-            self.device.both_persistent_switch_heaters = 'on'
+            self.device.virt_both_persistent_switch_heaters = 'on'
             self.virt_iout = Quantity(value,self._units)
-            self.device.both_persistent_switch_heaters = 'off'
+            self.device.virt_both_persistent_switch_heaters = 'off'
         elif self.virt_energysave_mode == 0:
             if self.persistent_switch_heater != 'on':
                 raise ValueError('Heater switch is not on in channel {0}.'.format(self.channel))
@@ -656,13 +656,13 @@ class Model4G(AbstractDevice):
 
         # Resources.
         
-        read_write = ['active_channel', 'both_persistent_switch_heaters', 'both_units']
+        read_write = ['active_channel', 'virt_both_persistent_switch_heaters', 'virt_both_units']
         for name in read_write:
             self.resources[name] = Resource(self, name, name)
         
         self.resources['active_channel'].allowed_values = self.allowed_active_channel
-        self.resources['both_persistent_switch_heaters'].allowed_values = self.allowed_both_heaters
-        self.resources['both_units'].allowed_values = self.allowed_both_units
+        self.resources['virt_both_persistent_switch_heaters'].allowed_values = self.allowed_both_heaters
+        self.resources['virt_both_units'].allowed_values = self.allowed_both_units
                         
     @Synchronized()
     def _connected(self):
@@ -679,7 +679,7 @@ class Model4G(AbstractDevice):
 
         #TODO: test if the *rst actually DOES do something to the magnet controller.
         
-        self.both_units = 'kG'
+        self.virt_both_units = 'kG'
         
         for channel in [1,2]:
             
@@ -704,7 +704,7 @@ class Model4G(AbstractDevice):
             
             resource_check_dict = { subdev.virt_energysave_mode:0, 
                                     subdev.virt_sync_currents:'synced',
-                                    self.both_units:'kG',
+                                    self.virt_both_units:'kG',
                                     subdev.power_supply_current:Quantity('0 kG'),
                                     subdev.magnet_current:Quantity('0 kG'),
                                     subdev.persistent_switch_heater:'off',
@@ -736,7 +736,7 @@ class Model4G(AbstractDevice):
         
     @property
     @Synchronized()
-    def both_persistent_switch_heaters(self):
+    def virt_both_persistent_switch_heaters(self):
         """
         The heaters on both channels. Control over both is desirable in order to avoid eddy currents in the system.
         """
@@ -750,9 +750,9 @@ class Model4G(AbstractDevice):
         else:
             return 'unequal'
     
-    @both_persistent_switch_heaters.setter
+    @virt_both_persistent_switch_heaters.setter
     @Synchronized()
-    def both_persistent_switch_heaters(self,value):
+    def virt_both_persistent_switch_heaters(self,value):
         if value not in self.allowed_both_heaters:
             raise ValueError('Invalid heater switch value: {0}'.format(value))
         
@@ -762,7 +762,7 @@ class Model4G(AbstractDevice):
             
     @property
     @Synchronized()
-    def both_units(self):
+    def virt_both_units(self):
         """
         Get current units of both device's channels.
         """
@@ -776,8 +776,8 @@ class Model4G(AbstractDevice):
             return 'unequal'
             
     
-    @both_units.setter
-    def both_units(self,value):
+    @virt_both_units.setter
+    def virt_both_units(self,value):
         """
         Set current units on both channels.
         """
