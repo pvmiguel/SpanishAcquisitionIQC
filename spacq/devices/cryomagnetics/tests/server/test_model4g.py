@@ -85,11 +85,11 @@ class Model4GTest(DeviceServerTestCase):
 
 		# Test both heaters option.
 		
-		magctrler.both_persistent_switch_heaters = 'on'
-		eq_(magctrler.both_persistent_switch_heaters, 'on')
+		magctrler.virt_both_persistent_switch_heaters = 'on'
+		eq_(magctrler.virt_both_persistent_switch_heaters, 'on')
 		
 		chanctrler.persistent_switch_heater = 'off'
-		eq_(magctrler.both_persistent_switch_heaters, 'unequal')
+		eq_(magctrler.virt_both_persistent_switch_heaters, 'unequal')
 		
 	
 	def testUnits(self):
@@ -117,11 +117,11 @@ class Model4GTest(DeviceServerTestCase):
 
 		# Test both heaters option.
 		
-		magctrler.both_units = 'A'
-		eq_(magctrler.both_units, 'A')
+		magctrler.virt_both_units = 'A'
+		eq_(magctrler.virt_both_units, 'A')
 		
 		chanctrler.units = 'kG'
-		eq_(magctrler.both_units, 'unequal')
+		eq_(magctrler.virt_both_units, 'unequal')
 		
 		# Try setting hilim with something not in the right units, and something that is in related units.
 		try:
@@ -213,7 +213,7 @@ class Model4GTest(DeviceServerTestCase):
 		chanctrler.virt_imag = Quantity('30 G')
 		
 		## Check if it was set and if the heater was turned off.
-		eq_(magctrler.both_persistent_switch_heaters, 'off')
+		eq_(magctrler.virt_both_persistent_switch_heaters, 'off')
 		eq_(chanctrler.virt_imag, Quantity('30 G')) 
 		
 		# Energy mode 3.
@@ -223,7 +223,7 @@ class Model4GTest(DeviceServerTestCase):
 		chanctrler.virt_imag = Quantity('10 G')
 		
 		## Check if the heater is off.
-		eq_(magctrler.both_persistent_switch_heaters, 'off')
+		eq_(magctrler.virt_both_persistent_switch_heaters, 'off')
 		## Check if the power is going down.
 		sleep(0.5)
 		eq_(chanctrler.magnet_current > chanctrler.power_supply_current, True)
