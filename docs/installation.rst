@@ -17,6 +17,20 @@ Installation procedure
 
 3. Copy the example apps to another directory (eg. ~/spacq_apps)
 
+4. Build the offline docs with `make -C docs html` while in the SpanishAcquisitionIQC directory that was taken from Git.
+
+5. Create desktop shortcuts ("launchers"):
+
+    * Application:
+
+      * Acquisition -> ~/spacq-apps/acquisition.py
+      * Data Explorer -> ~/spacq-apps/data_explorer.py
+
+    * Location:
+
+      * Spanish Acquisition Documentation -> http://ghwatson.github.com/SpanishAcquisitionIQC/docs/
+      * Spanish Acquisition Documentation (Offline) -> file://path/to/SpanishAcquisition/docs/_build/html/index.html
+
 Dependencies
 ************
 
