@@ -652,7 +652,7 @@ class Model4G(AbstractDevice):
             
         #This saves the last channel set to the device for programming purposes...its a way of minimizing
         #calls to the device.
-        self.active_channel_store = 1
+        self.active_channel_store = None
 
         # Resources.
         
@@ -661,12 +661,17 @@ class Model4G(AbstractDevice):
             self.resources[name] = Resource(self, name, name)
         
         self.resources['active_channel'].allowed_values = self.allowed_active_channel
+        self.resources['active_channel'].converter = int
         self.resources['virt_both_persistent_switch_heaters'].allowed_values = self.allowed_both_heaters
         self.resources['virt_both_units'].allowed_values = self.allowed_both_units
                         
     @Synchronized()
     def _connected(self):
         AbstractDevice._connected(self)
+        
+        # Start off with active channel as 1. Doing this to initialize active_channel_store.
+        self.active_channel = 1
+        
         
     @Synchronized()
     def reset(self):
