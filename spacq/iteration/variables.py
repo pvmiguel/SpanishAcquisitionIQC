@@ -80,10 +80,6 @@ class ConditionVariable(Variable):
 	A condition variable. Used to define conditions to make loops in the sweep controller indefinite.
 	"""
 	
-	#TODO: a speedier design would have each condition paired up with its resource name so that
-	#when evaluating conditions, there aren't as many conditions to search through.
-	#Note that this is at a cost of storage space.
-	
 	def __init__(self, order, resource_names=None, conditions=[], wait = '100 ms', *args, **kwargs):
 		Variable.__init__(self, *args,**kwargs)
 		
@@ -125,9 +121,6 @@ class Condition(object):
 	"""
 	A class used to represent a condition.
 	"""
-	
-	#TODO: This could be generalized to have arbitrary conditional statements...but this will
-	# require a parser for a general conditional string.
 	
 	allowed_types = set(['string', 'float', 'integer', 'quantity', 'resource name','resource'])
 	

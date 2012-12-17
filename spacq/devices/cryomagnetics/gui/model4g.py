@@ -2,13 +2,11 @@ from functools import partial
 from pubsub import pub
 from threading import Lock
 from threading import Thread
-# from time import sleep
 import wx
 
 from spacq.gui.tool.box import Dialog, OK_BACKGROUND_COLOR, MessageDialog
 from spacq.interface.units import Quantity, IncompatibleDimensions
 from spacq.interface.resources import AcquisitionThread
-#from spacq.gui.config.measurement import MeasurementConfigPanel
 
 """
 Magnet control front panel.
@@ -35,16 +33,12 @@ class Model4GChannelPanel(wx.Panel):
 		self.displays = {}
 		self.control_state_displays = {}
 		self.readout_displays = {}
-		#TODO: having this acquisition list and the measurement_resources list is redundant.
-		self.acquisition_list = [	'magnet_current','power_supply_current',
-									'persistent_switch_heater', 'high_limit','low_limit','sweep',
-									'rate_0','rate_1','rate_2','rate_3','rate_4', 'virt_sync_currents']
 		self.control_state_list = ['persistent_switch_heater','virt_sync_currents']
 		self.readout_list = [	'magnet_current','power_supply_current',
 								'persistent_switch_heater', 'high_limit','low_limit','sweep',
 								'rate_0','rate_1','rate_2','rate_3','rate_4', 'virt_sync_currents']
 		self.measurement_resources = []
-		for name in self.acquisition_list:
+		for name in self.readout_list:
 			self.displays[name] = []
 			self.measurement_resources.append((name, self.channel_subdevice.resources[name]))
 		# A list to save acquired data to before outputting to GUI.
@@ -87,7 +81,7 @@ class Model4GChannelPanel(wx.Panel):
 		main_box.Add(readout_box, flag=wx.EXPAND, proportion=1)
 		
 #		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=2, hgap=1)
-		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=3, hgap=1) #TODO: debugging purposes.
+		readout_grid = wx.FlexGridSizer(rows=len(self.readout_list), cols=3, hgap=1) #TODO: for debugging model4g GUI...replace when no longer needed.
 		readout_box.Add(readout_grid, flag=wx.ALIGN_RIGHT)
 		
 		self.checkboxes = {}
@@ -124,41 +118,6 @@ class Model4GChannelPanel(wx.Panel):
 		self.control_box=wx.StaticBoxSizer(self.control_static_box, wx.VERTICAL)
 		main_box.Add(self.control_box, flag=wx.EXPAND)
 		
-#		## Virtual Resources Control Box.
-#		
-#		virt_static_box = wx.StaticBox(self, label = 'Virtual Resources')
-#		virt_box = wx.StaticBoxSizer(virt_static_box, wx.VERTICAL)
-#		self.control_box.Add(virt_box, flag=wx.EXPAND)
-#		
-#		virt_grid = wx.FlexGridSizer(rows=2, cols=3, hgap=1)
-#		virt_grid.AddGrowableCol(1,1)
-#
-#		virt_box.Add(virt_grid, flag=wx.ALIGN_RIGHT)
-#		
-#		### Virtual Magnet Current
-#		
-#		virt_grid.Add(wx.StaticText(self, label='Virtual Magnet Current:'),
-#				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-#		
-#		set_virtsweepimag_button = wx.Button(self, label='Set', style=wx.BU_EXACTFIT)
-#		self.Bind(wx.EVT_BUTTON, self.OnSetVirtSweepImag, set_virtsweepimag_button)
-#		virt_grid.Add(set_virtsweepimag_button,flag=wx.ALIGN_RIGHT)
-#		
-#		self.virtsweepimag_input = wx.TextCtrl(self, size=(100, -1))
-#		virt_grid.Add(self.virtsweepimag_input, flag=wx.EXPAND)
-#		
-#		### Virtual Power Supply Current
-#		
-#		virt_grid.Add(wx.StaticText(self, label='Virtual Power Supply Current:'),
-#				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
-#		
-#		set_virtsweepiout_button = wx.Button(self, label='Set', style=wx.BU_EXACTFIT)
-#		self.Bind(wx.EVT_BUTTON, self.OnSetVirtSweepIout, set_virtsweepiout_button)
-#		virt_grid.Add(set_virtsweepiout_button,flag=wx.ALIGN_RIGHT)
-#		
-#		self.virtsweepiout_input = wx.TextCtrl(self, size=(100, -1))
-#		virt_grid.Add(self.virtsweepiout_input, flag=wx.EXPAND)
-
 		## Persistent Heater Switch.
 		
 		heater_box = wx.BoxSizer(wx.HORIZONTAL)
@@ -186,9 +145,6 @@ class Model4GChannelPanel(wx.Panel):
 		
 		sweep_buttons_grid = wx.FlexGridSizer(rows=2, cols=2, hgap=1)
 		sweep_buttons_box.Add(sweep_buttons_grid, flag=wx.CENTER|wx.ALL)
-		
-#		sweep_buttons_box = wx.BoxSizer(wx.HORIZONTAL)
-#		sweep_grid.Add(sweep_buttons_box)
 		
 		sweepup_button = wx.Button(self, label='up')
 		sweepzero_button = wx.Button(self, label='zero')
@@ -481,14 +437,6 @@ class Model4GChannelPanel(wx.Panel):
 			MessageDialog(self, ValueError('Expected dimensions to match "{0}"'.format(resource.units))).Show()
 		
 		
-#	def OnSetVirtSweepImag(self, evt=None):
-#		new_value = Quantity(float(self.virtsweepimag_input.GetValue()),'T')
-#		self.channel_subdevice.resources['virt_imag_sweep_to'].value = new_value
-#	def OnSetVirtSweepIout(self, evt=None):
-#		new_value = Quantity(float(self.virtsweepiout_input.GetValue()),'T')
-#		self.channel_subdevice.resources['virt_iout_sweep_to'].value = new_value
-
-
 	def OnSyncCurrents(self, evt=None):
 		self.channel_subdevice.resources['virt_sync_currents'].value = 'start'
 		

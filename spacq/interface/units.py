@@ -156,7 +156,6 @@ class Quantity(object):
 		self.original_multiplier = multiplier
 
 		# Find the normalization factor.
-		#FIXME: This approach does not work for the case where a quantity has a value of 0...
 		q, orig = self._q.magnitude, original_quantity.magnitude
 		if q != orig:
 			self.original_multiplier += log10(abs(q)) - log10(abs(orig))

@@ -210,39 +210,6 @@ class ConditionEditor(Dialog):
 			
 		
 	def GetValue(self):
-		
-		
-		
-		
-		
-#		
-#		arg_types = []
-#		for i, type in enumerate(self.arg_type_setters):
-#			# We ensure values are sane along the way.
-#			if type['float'].Value:
-#				arg_types.append('float')
-#				cond_args.append(float(self.args[i].Value))
-#			elif type['integer'].Value:
-#				arg_types.append('integer')
-#				cond_args.append(float(self.args[i].Value))
-#			elif type['resource'].Value:
-#				arg_types.append('resource')
-#				cond_args.append(float(self.args[i].Value))
-#			elif type['quantity'].Value:
-#				arg_types.append('quantity')
-#				cond_args.append(float(self.args[i].Value))
-#			elif type['string'].Value:
-#				arg_types.append('string')
-#				cond_args.append(float(self.args[i].Value))
-#		
-#			# Check if the value is sane.
-#			if arg_types[i] != 'resource':
-#				try:
-#					Condition.convert(arg_types[i], self.args[i].Value)
-#				except ValueError as e:
-#					raise ValueError('Invalid value.')
-#					return
-		
 		cond_args = []
 		arg_types = []
 		for i, type in enumerate(self.arg_type_setters):
@@ -263,8 +230,6 @@ class ConditionEditor(Dialog):
 				arg_types.append('string')
 				cond_args.append(self.args[i].Value)
 		
-#		condition = Condition(arg_types[0], arg_types[1],
-#							self.args[0].Value, self.op_menu.Value, self.args[1].Value)
 		condition = Condition(arg_types[0], arg_types[1], cond_args[0], self.op_menu.Value, cond_args[1])
 		
 		return condition
@@ -335,7 +300,6 @@ class ConditionVariableEditor(Dialog):
 				resource_names.append(condition.arg2)
 								
 		return resource_names, conditions
-#		return [conditions,]
 		
 	def SetValue(self, resource_names, conditions):
 		
