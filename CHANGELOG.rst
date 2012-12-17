@@ -2,6 +2,29 @@
 Changes
 #######
 
+* 2012-12-17: **2.0.0a1**
+
+  Enhancements:
+
+  * Added Cryomagnetics Model 4G power supply.
+  * Added condition variables throughout the code.
+  * Added dynamic quantity wrappers.
+  * Made measurement windows default to having "Capture" checked.
+  * Y-axis of measurement plots displays units.  Currently just given in terms of fundamental SI units.
+  * Make title of Acquisition reflect version number.
+
+  Fixes:
+
+  * If the units of a resource are changed, the GUI display units of the resource will now change too.
+  * Fix runscripts script so that it can run files that have been made executable by Git.
+
+  To be completed for 2.0.0:
+
+  * Test the GUI for model4g (see TODOS).
+  * Use runtests script with device as opposed to just the mock device.
+  * Check rounding on Amps for the model 4g, and make changes in code for this (see TODOs).
+  * Test the *rst command with the model 4g (see TODO in source code).
+
 * 2012-09-19: **1.3.0**
 
   Enhancements:

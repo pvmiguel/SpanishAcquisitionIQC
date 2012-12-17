@@ -9,7 +9,7 @@ def included_package(p):
 
 setup(
 	name='SpanishAcquisition',
-	version='1.3.0',
+	version='2.0.0a1',
 	author='Dmitri Iouchtchenko',
 	author_email='diouchtc@uwaterloo.ca',
 	maintainer='Grant Watson',
