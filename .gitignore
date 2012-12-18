@@ -8,6 +8,6 @@
 .coverage
 
 # Build objects.
-/Spanish_Acquisition.egg-info/
+/SpanishAcquisition.egg-info/
 /build/
 /dist/
