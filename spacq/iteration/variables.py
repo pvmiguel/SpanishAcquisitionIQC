@@ -147,9 +147,12 @@ class Condition(object):
 		# We retrieve the values from the resources if the arguments are resource names
 		if resources:
 			for name, resource in resources:
-				if name == self.arg1 and self.type1 == 'resource name':
+				# Note that the ordering of the 'and' statements here makes use of python's shortcircuiting.
+				# Upon reversing boolean arguments, there could be a case that throws an exception if a string
+				# is being compared against a quantity.  This is because of the overloading of __eq__ for Quantity.
+				if self.type1 == 'resource name' and name == self.arg1:
 					arg1_to_evaluate = resource.value
-				if name == self.arg2 and self.type2 == 'resource name':
+				if self.type2 == 'resource name' and name == self.arg2:
 					arg2_to_evaluate = resource.value
 					
 		if self.type1 == 'resource':
