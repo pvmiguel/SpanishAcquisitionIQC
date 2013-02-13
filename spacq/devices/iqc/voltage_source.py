@@ -57,9 +57,9 @@ class Port(AbstractSubdevice):
 		self.offset = 0.0
 
 		# Resources.
-		write_only = ['voltage']
-		for name in write_only:
-			self.resources[name] = Resource(self, None, name)
+		read_write = ['voltage']
+		for name in read_write:
+			self.resources[name] = Resource(self, name, name)
 
 		self.resources['voltage'].units = 'V'
 
@@ -117,6 +117,9 @@ class Port(AbstractSubdevice):
 			raise ValueError('Adjusted voltage must be within [{0}, {1}]. '
 					'Given: {2}; adjusted to: {3}.'.format(self.min_value,
 					self.max_value, voltage, voltage_adjusted))
+					
+		# Store the currentOutput for future reads
+		self.currentVoltage = voltage_adjusted
 
 		max_converted = (1 << self.resolution) - 1
 		value_span = self.max_value - self.min_value
@@ -183,8 +186,14 @@ class Port(AbstractSubdevice):
 		# Write 16 bits to the top of the DIR: 0010 0100 xx10 0000 101x 00xx
 		self.write_to_dac('24 {0:04x}'.format(0x20a0 | flags))
 
+	@property
+	@quantity_wrapped('V')
+	def voltage(self):
+		return self.currentVoltage
+	
+	@voltage.setter
 	@quantity_unwrapped('V')
-	def set_voltage(self, voltage):
+	def voltage(self, value):
 		"""
 		Set the voltage on this port, as a quantity in V.
 		"""
@@ -193,12 +202,11 @@ class Port(AbstractSubdevice):
 		# 20-bit: VVVV VVVV VVVV VVVV VVVV xxxx
 		# 16-bit: VVVV VVVV VVVV VVVV xxxx xxxx
 		# where the 'x's are don't-cares, so we just set them to 0 by shifting.
-		resulting_voltage = self.calculate_voltage(voltage) << (24 - self.resolution)
+		resulting_voltage = self.calculate_voltage(value) << (24 - self.resolution)
 
 		# Write 24 bits to the top of the DIR: 0100 0000 xxxx xxxx xxxx xxxx xxxx xxxx
 		self.write_to_dac('40 {0:06x}'.format(resulting_voltage))
 
-	voltage = property(fset=set_voltage)
 
 	@Synchronized()
 	def autotune(self, voltage_resource, min_value=None, max_value=None, final_value=0, set_result=True):
