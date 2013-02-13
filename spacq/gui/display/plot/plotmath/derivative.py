@@ -19,12 +19,12 @@ class DerivativeMathSetupDialog(MathSetupDialog):
 
     	def calculate(self):
         	try:
-            		x_data, y_data = [self.data[:,axis].astype(float) for axis in self.axes]
+            		y_data, x_data = [self.data[:,axis].astype(float) for axis in self.axes]
        		except ValueError as e:
             		MessageDialog(self, str(e), 'Invalid value').Show()
             		return
 	
-		x_label, y_label = [self.headings[x] for x in self.axes]
+		y_label, x_label = [self.headings[x] for x in self.axes]
 		title = 'd{0}/d{1}'.format(y_label, x_label)
 		
 		derivative_loop = len(x_data)
