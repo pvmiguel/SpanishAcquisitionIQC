@@ -115,7 +115,7 @@ class SmoothResetPanel(wx.Panel):
 				if self:
 					wx.CallAfter(self.to_button.Enable)
 					wx.CallAfter(self.from_button.Enable)
-					wc.CallAfter(self.toVal_button.Enable)
+					wx.CallAfter(self.toVal_button.Enable)
 
 		thr = Thread(target=sweep_all_vars)
 		thr.daemon = True
