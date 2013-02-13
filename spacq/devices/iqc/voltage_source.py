@@ -9,7 +9,7 @@ from spacq.interface.units import Quantity
 from spacq.tool.box import Synchronized
 
 from ..abstract_device import AbstractDevice, AbstractSubdevice
-from ..tools import quantity_unwrapped, BinaryEncoder
+from ..tools import quantity_unwrapped, quantity_wrapped, BinaryEncoder
 
 """
 Custom voltage source
