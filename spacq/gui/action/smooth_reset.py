@@ -27,14 +27,19 @@ class SmoothResetPanel(wx.Panel):
 		panel_box.Add(reset_box, flag=wx.CENTER|wx.ALL, border=10)
 
 		### To zero.
-		self.to_button = wx.Button(self, label='To zero')
+		self.to_button = wx.Button(self, label='To Zero')
 		self.Bind(wx.EVT_BUTTON, self.OnResetToZero, self.to_button)
 		reset_box.Add(self.to_button, flag=wx.EXPAND)
 
 		### From zero.
-		self.from_button = wx.Button(self, label='From zero')
+		self.from_button = wx.Button(self, label='From Zero')
 		self.Bind(wx.EVT_BUTTON, self.OnResetFromZero, self.from_button)
 		reset_box.Add(self.from_button, flag=wx.EXPAND)
+		
+		## To Value
+		self.toVal_button = wx.Button(self, label='To Value')
+		self.Bind(wx.EVT_BUTTON, self.OnResetToValue, self.toVal_button)
+		reset_box.Add(self.toVal_button, flag=wx.EXPAND)
 
 		### Steps.
 		steps_static_box = wx.StaticBox(self, label='Steps')
@@ -72,13 +77,14 @@ class SmoothResetPanel(wx.Panel):
 
 		return vars
 
-	def reset(self, from_zero):
+	def reset(self, sweep_setting):
 		vars = self.choose_variables()
 		if vars is None:
 			return
 
 		self.to_button.Disable()
 		self.from_button.Disable()
+		self.toVal_button.Disable()
 
 		def exception_callback(e):
 			MessageDialog(self, str(e), 'Error writing to resource').Show()
@@ -89,10 +95,12 @@ class SmoothResetPanel(wx.Panel):
 				for var in vars:
 					resource = self.global_store.resources[var.resource_name]
 
-					if from_zero:
+					if sweep_setting == 1:
 						value_from, value_to = 0, var.with_type(var.const)
-					else:
+					elif sweep_setting == 0:
 						value_from, value_to = var.with_type(var.const), 0
+					else:
+						value_from, value_to = resource.value , var.with_type(var.const)
 
 					thr = Thread(target=resource.sweep, args=(value_from, value_to, self.reset_steps_input.Value),
 							kwargs={'exception_callback': partial(wx.CallAfter, exception_callback)})
@@ -107,13 +115,17 @@ class SmoothResetPanel(wx.Panel):
 				if self:
 					wx.CallAfter(self.to_button.Enable)
 					wx.CallAfter(self.from_button.Enable)
+					wc.CallAfter(self.toVal_button.Enable)
 
 		thr = Thread(target=sweep_all_vars)
 		thr.daemon = True
 		thr.start()
 
 	def OnResetToZero(self, evt=None):
-		self.reset(False)
+		self.reset(0)
 
 	def OnResetFromZero(self, evt=None):
-		self.reset(True)
+		self.reset(1)
+		
+	def OnResetToValue(self, evt=None):
+		self.reset(2)
