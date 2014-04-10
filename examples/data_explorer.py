@@ -13,6 +13,7 @@ from spacq.gui.display.plot.static.delegator import formats, available_formats
 from spacq.gui.display.table.filter import FilterListDialog
 from spacq.gui.display.table.generic import TabularDisplayFrame
 from spacq.gui.display.plot.plotmath.derivative import DerivativeMathSetupDialog
+from spacq.gui.display.plot.plotmath.function import FunctionMathSetupDialog
 from spacq.gui.tool.box import load_csv, MessageDialog
 
 
@@ -89,6 +90,9 @@ class DataExplorerApp(wx.App):
 
 		item = menu.Append(wx.ID_ANY, '&Derivative...')
 		self.Bind(wx.EVT_MENU, self.OnMenuMathDerivative, item)
+
+		item = menu.Append(wx.ID_ANY, '&Function...')
+		self.Bind(wx.EVT_MENU, self.OnMenuMathFunction, item)
 
 		## Help.
 		menu = wx.Menu()
@@ -194,8 +198,23 @@ class DataExplorerApp(wx.App):
 		headings, rows, types = self.csv_frame.display_panel.GetValue(types=[type])
 		dmath = DerivativeMathSetupDialog(self.csv_frame, headings, rows)
 		dmath_open = dmath.ShowModal()
+
+		new_headings = headings
+		new_headings.append(dmath.dheading)
+		new_rows = concatenate([rows.astype(float),dmath.ddata],1)
+
+		self.csv_frame.display_panel.SetValue(new_headings,new_rows)
+
+	def OnMenuMathFunction(self, format, evt=None, type='scalar'):
+		"""
+		Open up a dialog to apply a function
+		"""
+		headings, rows, types = self.csv_frame.display_panel.GetValue(types=[type])
+		dmath = FunctionMathSetupDialog(self.csv_frame, headings, rows)
+		dmath_open = dmath.ShowModal()
 				
-		new_headings = concatenate([headings,[dmath.dheading]],1)
+		new_headings = headings
+		new_headings.append(dmath.dheading)
 		new_rows = concatenate([rows.astype(float),dmath.ddata],1)
 
 		self.csv_frame.display_panel.SetValue(new_headings,new_rows)
