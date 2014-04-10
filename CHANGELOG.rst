@@ -1,6 +1,18 @@
 #######
 Changes
 #######
+* 2014-04-10: **2.0.1a**
+
+  Kaveh Gharavi is now the maintainer
+  email: kayghar@gmail.com
+
+  Enhancements:
+
+  *  Added Implementation for Agilent 8753ET transmission/reflection network analyzer
+  *  Added Implementation for Stanford Research Systems SR830 digital lock-in amplifier
+  *  Added menu feature 'Math->Function' to Data Explorer
+
+
 
 * 2012-12-17: **2.0.0a1**
 
