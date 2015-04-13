@@ -47,6 +47,7 @@ class DM34401A(AbstractDevice):
 
 		# TODO: Allow for measurements other than DC voltage.
 		self.write('configure:voltage:dc')
+		self.integration_time = 1.0
 
 	@Synchronized()
 	def reset(self):
