@@ -27,7 +27,7 @@ class voltageSource230(AbstractDevice):
 
 		# Test
 		self.default_Ilim = 2.0
-		self.default_dwelltime = 3.0
+		self.default_dwelltime = 0.01
 
 		# Resources.
 		write_only = ['voltage']
@@ -54,7 +54,7 @@ class voltageSource230(AbstractDevice):
 		self.device.write('K0X')
 		self.device.write('F1X')
 
-	def __init__(self, vMin = -101, vMax = 101, dwellMin = 3, dwellMax = 999.9, *args, **kwargs):
+	def __init__(self, vMin = -101, vMax = 101, dwellMin = 0.003, dwellMax = 0.9999, *args, **kwargs):
 		"""
 		Initialize the voltage source and all its ports.
 		"""
@@ -100,7 +100,8 @@ class voltageSource230(AbstractDevice):
 		resulting_voltage = self.calculate_voltage(voltage)
 
 		# Write 24 bits to the top of the DIR: 0100 0000 xxxx xxxx xxxx xxxx xxxx xxxx
-		self.write('L1 B1 V{0:.4E}XI{1:.2E}XW{2:.3E}X'.format(resulting_voltage,self.I_limit_code,self.dwelltime))
+		#self.write('L1 B1 V{0:.4E}XI{1:.2E}XW{2:.3E}X'.format(resulting_voltage,self.I_limit_code,self.dwelltime))
+		self.write('V{0:.4E}X'.format(resulting_voltage))
 		#self.write('L1 B1 V{0:.4E}XI{1:.2E}XW{2:.3E}X'.format(resulting_voltage,0,3))
 
 	voltage = property(fset=set_voltage)
@@ -135,9 +136,9 @@ class voltageSource230(AbstractDevice):
 		"""
 		The dwell time of the vsrc
 		"""
-		# If no dwell time has been set, use 3ms default
+		# If no dwell time has been set, use 10ms default
 		if not hasattr(self, 'dwelltime'):
-			self.dwelltime = 3
+			self.dwelltime = 0.01
 		return self.dwelltime
 	
 	@dwell_time.setter
