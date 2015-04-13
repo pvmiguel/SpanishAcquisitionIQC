@@ -10,7 +10,7 @@ class FunctionMathSetupDialog(MathSetupDialog_Function):
 	ddata = []
 	
 	def __init__(self, parent, headings, data, *args, **kwargs):
-		MathSetupDialog_Function.__init__(self, parent, headings, ['*'], *args, **kwargs)
+		MathSetupDialog_Function.__init__(self, parent, headings, ['#'], *args, **kwargs)
 
 		self.parent = parent
 		self.headings = headings
@@ -25,9 +25,9 @@ class FunctionMathSetupDialog(MathSetupDialog_Function):
             		MessageDialog(self, str(e), 'Invalid value').Show()
             		return
 
-		title = 'y = {0}'.format(self.function_input.Value.replace('*',y_name[0]))
+		title = 'y = {0}'.format(self.function_input.Value.replace('#',y_name[0]))
 		y_data = y_data[0]
-		d_data = eval(self.function_input.Value.replace('*','y_data'))
+		d_data = eval(self.function_input.Value.replace('#','y_data'))
 		d_data = d_data.reshape(d_data.size,1)
 		return(title,d_data)
 

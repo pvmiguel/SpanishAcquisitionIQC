@@ -24,12 +24,18 @@ class NWA8753ET(AbstractDevice):
 		AbstractDevice._setup(self)
 
 		# Resources.
-		read_write = ['cwFreq','power']
+		read_only = ['marker']
+		for name in read_only:
+			self.resources[name] = Resource(self, name)
+		
+		read_write = ['cwFreq','power','markFreq']
 		for name in read_write:
-			self.resources[name] = Resource(self, name, name)
+			self.resources[name] = Resource(self, name, name, name)
 
+		self.resources['marker'].converter = float
 		self.resources['cwFreq'].units = 'Hz'
 		self.resources['power'].converter = float
+		self.resources['markFreq'].units = 'Hz'
 
 	@Synchronized()
 	def _connected(self):
@@ -74,6 +80,39 @@ class NWA8753ET(AbstractDevice):
 	@power.setter
 	def power(self, value):
 		self.write('powe{0}'.format(value))
+
+	@property
+	@Synchronized()
+	def marker(self):
+		"""
+		The value measured by the device at marker, as a quantity in dB.
+		"""
+
+		self.status.append('Taking reading')
+
+		try:
+			log.debug('Getting reading.')
+			result_raw = self.ask('OUTPMARK')
+			result = float([x.strip() for x in result_raw.split(',')][0])
+			log.debug('Got reading: {0}'.format(result))
+
+			return result
+		finally:
+			self.status.pop()
+		
+	@property
+	@quantity_wrapped('Hz')
+	def markFreq(self):
+		"""
+		The frequency of the marker in Hz
+		"""
+
+		return float(self.ask('MARK1?'))
+
+	@markFreq.setter
+	@quantity_unwrapped('Hz')
+	def markFreq(self, value):
+		self.write('MARK1{0}'.format(value))
 
 
 

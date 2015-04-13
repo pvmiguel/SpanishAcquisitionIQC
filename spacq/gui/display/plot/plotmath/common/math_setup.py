@@ -129,7 +129,7 @@ class MathSetupDialog_Function(Dialog):
 		input_sizer.AddGrowableCol(1, 1)
 		dialog_box.Add(input_sizer, proportion=1, flag=wx.EXPAND|wx.ALL, border=5)
 
-		input_sizer.Add(wx.StaticText(self, label='Function (* is data):'),
+		input_sizer.Add(wx.StaticText(self, label='Function (# is data):'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.function_input = wx.TextCtrl(self)
 		self.function_input.SetMinSize((300, -1))
