@@ -30,7 +30,7 @@ class FilterEditDialog(Dialog):
 		self.column_input = wx.Choice(self, choices=headings)
 		input_sizer.Add(self.column_input, flag=wx.EXPAND)
 
-		input_sizer.Add(wx.StaticText(self, label='Function:'),
+		input_sizer.Add(wx.StaticText(self, label='Function (* is data):'),
 				flag=wx.ALIGN_CENTER_VERTICAL|wx.ALIGN_RIGHT)
 		self.function_input = wx.TextCtrl(self)
 		self.function_input.SetMinSize((300, -1))
@@ -113,7 +113,7 @@ class FilterListDialog(Dialog):
 
 		col_idx = self.table.headings.index(col)
 
-		return lambda i, x: eval(f_text.replace('x', 'float(x[{0}])'.format(col_idx)))
+		return lambda i, x: eval(f_text.replace('*', 'float(x[{0}])'.format(col_idx)))
 
 	@property
 	def meta_filter(self):
