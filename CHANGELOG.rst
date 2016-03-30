@@ -1,6 +1,17 @@
 #######
 Changes
 #######
+
+* 2016-03-30: **3.0.0**
+
+  Paulo Miguel is now the maintainer
+  email: pmiguel@uwaterloo.ca
+
+  To be completed for 3.0.0:
+
+  * Add implementation for Keithley 2100 Digital Multimeter
+  * Add implementation for Keithley 2450 Sourcemeter Unit
+
 * 2014-04-10: **2.0.1a**
 
   Kaveh Gharavi is now the maintainer
