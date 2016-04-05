@@ -1,4 +1,7 @@
 import logging
+
+from logging.handlers import BufferingHandler
+
 log = logging.getLogger(__name__)
 
 from nose.plugins.skip import SkipTest
@@ -8,7 +11,7 @@ from unittest import TestCase
 from testconfig import config as tc
 
 
-class AssertHandler(logging.handlers.BufferingHandler):
+class AssertHandler(BufferingHandler):
 	"""
 	A logging handler that allows making assertions based on its contents.
 	"""
