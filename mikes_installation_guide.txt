@@ -1,0 +1,71 @@
+Installation instructions on a clean RPM-Linux Machine
+
+0. Get Git
+
+1. Add EPEL to list of yum repositories using
+	yum install epel-release
+
+2. Using yum, install
+	
+    gcc-c++
+	wx
+	bzr
+	mesa-libGLU-devel
+	lapack-devel	
+	python-pip
+	python-imaging
+	python-devel
+	python-ivi
+    wxPython
+	kernel-devel
+	xorg-x11-server-devel
+	scipy
+	swig
+
+
+3. We need to install setuptools on the default Python 2.6.6 included with yum. So let's run 
+
+	wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
+
+And run this file using
+
+	sudo python ez_setup.py
+
+4. Upgrade pip using
+	
+	sudo pip install --upgrade pip
+
+5. Upgrade nose using
+	
+	sudo pip install --upgrade nose
+
+5. cd into the library directory and run
+
+	sudo pip install enable-4.2.0.tar.gz
+	sudo pip install chaco-4.2.0.tar.gz
+	sudo pip install ObjectListView
+	""	""	Pyparsing
+			PubSub
+            quantities
+            nose-testconfig           
+	
+6. Get the ISO image from the site, and mount it using
+
+	mount -o loop <iso-location>/NI-VISA-#.#.#.iso <mount-location>
+
+7. cd into this directory and run the INSTALL shell script using
+
+	./INSTALL
+	
+This needs to be run as root
+
+8. Run
+	sudo pip install PyVISA==1.5
+
+
+
+9. Upgrade numpy and scipy with pip
+	
+	sudo pip install --upgrade scipy
+
+10. Install the NI-488 GPIB driver
