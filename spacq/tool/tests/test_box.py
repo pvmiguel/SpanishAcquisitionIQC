@@ -1,7 +1,7 @@
 from nose.tools import eq_
 from numpy import arange, linspace, repeat
 from numpy.testing import assert_array_equal, assert_array_almost_equal
-from pubsub import pub
+from pubsub.core import Publisher
 from threading import RLock, Thread
 import time
 from unittest import main, TestCase
@@ -183,7 +183,7 @@ class PubDictTest(TestCase):
 		def msg_removed(name):
 			data.append((name,))
 
-		p = pub.Publisher()
+		p = Publisher()
 
 		p.subscribe(msg_added, 'test.added')
 		p.subscribe(msg_removed, 'test.removed')
@@ -207,7 +207,7 @@ class PubDictTest(TestCase):
 		Attempt a compound operation.
 		"""
 
-		pd = box.PubDict(RLock(), pub.Publisher().sendMessage, 'test')
+		pd = box.PubDict(RLock(), Publisher().sendMessage, 'test')
 
 		pd['a'] = 'abc'
 
@@ -224,7 +224,7 @@ class PubDictTest(TestCase):
 		Try some bad scenarios.
 		"""
 
-		pd = box.PubDict(RLock(), pub.Publisher().sendMessage, 'test')
+		pd = box.PubDict(RLock(), Publisher().sendMessage, 'test')
 
 		# Setting None.
 		try:
