@@ -58,6 +58,12 @@ the EPEL repository onto your package manager repository list. Do this by runnin
 	```bash
 	sudo pip install --upgrade nose
 	```
+6. On Fedora, install redhat-rpm-config.
+	
+6. Install [traits](https://pypi.python.org/pypi/traits). This is a dependency for the ```enable``` library,
+	which is itself a dependency for chaco, one of the graphics libraries. The installation from PyPI is
+	currently broken, so you will need to use your package manager.
+	
 
 5. cd into the library directory and run
 
