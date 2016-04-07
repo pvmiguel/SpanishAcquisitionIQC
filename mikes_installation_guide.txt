@@ -2,8 +2,18 @@ Installation instructions on a clean RPM-Linux Machine
 
 0. Get Git
 
-1. Add EPEL to list of yum repositories using
+## System Packages ##
+
+### RPM-Based Distributions ###
+
+Using your package manager (```yum``` on most RPM-based distros, ```dnf``` on Fedora), do the following
+
+1. Run ```yum whatprovides */python-imaging```. If this package is not available, then you will need to install 
+the EPEL repository onto your package manager repository list. Do this by running
+
+```bash
 	yum install epel-release
+```
 
 2. Using yum, install
 	
@@ -16,28 +26,38 @@ Installation instructions on a clean RPM-Linux Machine
 	python-imaging
 	python-devel
 	python-ivi
-    wxPython
+	wxPython
 	kernel-devel
 	xorg-x11-server-devel
 	scipy
 	swig
 
 
-3. We need to install setuptools on the default Python 2.6.6 included with yum. So let's run 
+3. Run ```pip list | grep setuptools```. This should yield one line of output showing the version of the 
+	[setuptools](https://pypi.python.org/pypi/setuptools) package installed on your machine. If no output
+	is visible, install setuptools. Setuptools normally comes bundled with a Python installation, but some older
+	versions of Python may not have it. To get it, run
 
-	wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
-
-And run this file using
-
-	sudo python ez_setup.py
+	```bash
+		wget https://bitbucket.org/pypa/setuptools/raw/bootstrap/ez_setup.py
+	```
+	Find the file you just downloaded, and then run
+	
+	```
+		sudo python ez_setup.py
+	```
 
 4. Upgrade pip using
 	
+	```bash
 	sudo pip install --upgrade pip
+	```
 
 5. Upgrade nose using
 	
+	```bash
 	sudo pip install --upgrade nose
+	```
 
 5. cd into the library directory and run
 
