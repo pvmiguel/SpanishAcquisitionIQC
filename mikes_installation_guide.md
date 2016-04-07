@@ -85,6 +85,8 @@ the EPEL repository onto your package manager repository list. Do this by runnin
 	
 This needs to be run as root
 
+8. Install Linux GPIB following the instructions in the other file
+
 8. Run
 	sudo pip install PyVISA==1.5
 
